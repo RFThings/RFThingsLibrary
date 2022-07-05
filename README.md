@@ -6,13 +6,13 @@
 3. Install RFThings library from this repository
 - <b><u>Method 1</u></b> (<i>Recommeded</i>): Download the repository as <b>*.zip</b> file and add into Arduino IDE
 - <b><u>Method 2</u></b>: Clone the repository directly into your Arduino Library folder. The path to your Arduino Library folder is indicated as <i>Sketchbook location</i> in <b>Preferences menu</b> (<i>Alt + ,</i>)
-<img src="docs/Sketchbook_Location.png" width="400">
+<img src="docs/Sketchbook_Location.png" width="900">
 
 4. Get started with the Telnet example in <b>File -> Examples -> RFThingsLibrary -> Telnet</b>
-<img src="docs/Example.png" width="350">
+<img src="docs/Example.png" width="400">
 
 5. Select the <b>RFThings-DKAIoT</b> Board in Tools menu and upload the example.
-<img src="docs/BoardConfig.png" width="350">
+<img src="docs/BoardConfig.png" width="400">
 
 ## Telnet Example
 ### Sketch configurations

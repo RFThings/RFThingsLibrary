@@ -32,7 +32,7 @@ lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* comman
 
     digitalWrite(lr11xx_hal->nss, LOW);
 #ifdef SPI_HAS_TRANSACTION
-    SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
+    SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
 #endif
 
     uint8_t newbuffer[300];
@@ -57,7 +57,7 @@ lr11xx_hal_status_t lr11xx_hal_read( const void* context, const uint8_t* command
 
     digitalWrite(lr11xx_hal->nss, LOW);
 #ifdef SPI_HAS_TRANSACTION
-    SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
+    SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
 #endif
 
     /* 1st SPI transaction */
@@ -91,7 +91,7 @@ lr11xx_hal_status_t lr11xx_hal_direct_read( const void* context, uint8_t* data, 
 
     digitalWrite(lr11xx_hal->nss, LOW);
 #ifdef SPI_HAS_TRANSACTION
-    SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
+    SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
 #endif
 
     memset(data, LR11XX_NOP, data_length);
@@ -114,7 +114,10 @@ lr11xx_hal_status_t lr11xx_hal_reset( const void* context ) {
     delay(5);
 
     delay(200);
-
+    pinMode(lr11xx_hal->nss, OUTPUT);
+    digitalWrite(lr11xx_hal->nss, HIGH);
+    SPI.begin();
+    delay(10);
     return LR11XX_HAL_STATUS_OK;
 }
 

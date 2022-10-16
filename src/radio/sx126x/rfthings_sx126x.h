@@ -48,7 +48,8 @@ class rfthings_sx126x : public rfthings_radio {
         void wake_up(void);
 
         // LoRaWAN relay application
-        rft_status_t relay(byte *payload, uint32_t payload_len, void (*rx_func)(), void (*sleep_func)());
+        rft_status_t relay(byte *payload, uint32_t &payload_len, void (*rx_func)(), void (*sleep_func)());
+        rft_status_t relay(rft_lora_params_t* relay_lora_params, byte *payload, uint32_t &payload_len, void (*rx_func)(), void (*sleep_func)());
         static void irq_relay(void);
 
         void set_lora_pkt_param(sx126x_pkt_params_lora_t param);
@@ -63,6 +64,7 @@ class rfthings_sx126x : public rfthings_radio {
         static sx126x_lora_cr_t map_coding_rate(rft_lora_coding_rate_t coding_rate);
 
         uint8_t compute_lora_ldro(void);
+        uint8_t compute_lora_ldro(rft_lora_params_t lora_params);
 
         // LoRaWAN relay application
         // volatile bool detect_preamble;

@@ -119,6 +119,7 @@ rft_status_t rfthings_sx126x::send_lora(byte *payload, uint32_t payload_len, uin
 	lora_mod_params.sf = map_spreading_factor(lora_params.spreading_factor);
 	lora_mod_params.bw = map_bandwidth(lora_params.bandwidth);
 	lora_mod_params.cr = map_coding_rate(lora_params.coding_rate);
+	// lora_mod_params.ldro = 0x01;
 	lora_mod_params.ldro = compute_lora_ldro();
 	sx126x_set_lora_mod_params(&sx126x_hal, &lora_mod_params);
 
@@ -248,7 +249,7 @@ void rfthings_sx126x::set_lora_pkt_param(sx126x_pkt_params_lora_t param) {
 	sx126x_set_lora_pkt_params(&sx126x_hal, &param);
 }
 
-rft_status_t rfthings_sx126x::relay(byte *payload, uint32_t payload_len, void (*rx_func)(), void (*sleep_func)()) {
+rft_status_t rfthings_sx126x::relay(byte *payload, uint32_t &payload_len, void (*rx_func)(), void (*sleep_func)()) {
 	sx126x_wakeup(&sx126x_hal);
 	sx126x_set_standby(&sx126x_hal, SX126X_STANDBY_CFG_RC);
 
@@ -335,6 +336,112 @@ rft_status_t rfthings_sx126x::relay(byte *payload, uint32_t payload_len, void (*
 		lora_params.rssi = pkt_status.rssi_pkt_in_dbm;
 		lora_params.snr = pkt_status.snr_pkt_in_db;
 		lora_params.signal_rssi = pkt_status.signal_rssi_pkt_in_dbm;
+
+		sx126x_rx_buffer_status_t rx_buffer_status;
+		sx126x_get_rx_buffer_status(&sx126x_hal, &rx_buffer_status);
+
+		payload_len = rx_buffer_status.pld_len_in_bytes;
+		sx126x_read_buffer(&sx126x_hal, rx_buffer_status.buffer_start_pointer, payload, payload_len);
+	} else {
+   		payload_len = 0;
+		return RFT_STATUS_PREAMBLE_DETECT_FAIL;
+	}
+
+	sx126x_clear_irq_status(&sx126x_hal, SX126X_IRQ_ALL);
+	digitalWrite(sx126x_hal.antenna_switch, 0);
+	
+	// sx126x_set_sleep(&sx126x_hal, SX126X_SLEEP_CFG_WARM_START);
+
+	return RFT_STATUS_OK;
+}
+
+rft_status_t rfthings_sx126x::relay(rft_lora_params_t* relay_lora_params, byte *payload, uint32_t &payload_len, void (*rx_func)(), void (*sleep_func)()) {
+	sx126x_wakeup(&sx126x_hal);
+	sx126x_set_standby(&sx126x_hal, SX126X_STANDBY_CFG_RC);
+
+	// time to transmit one symbol: tS = 2^SF / BW
+	sx126x_irq_mask_t irq_status;
+	uint16_t symbol_len = 6 + relay_lora_params->symbol_time * sx126x_get_lora_bw_in_hz(map_bandwidth(relay_lora_params->bandwidth)) / ((1 << map_spreading_factor(relay_lora_params->spreading_factor)) * 1e3);
+	uint32_t detect_time = 1e3 * relay_lora_params->detect_symbol * (1 << map_spreading_factor(relay_lora_params->spreading_factor)) / sx126x_get_lora_bw_in_hz(map_bandwidth(relay_lora_params->bandwidth));
+
+	sx126x_set_pkt_type(&sx126x_hal, SX126X_PKT_TYPE_LORA);
+
+	digitalWrite(sx126x_hal.antenna_switch, HIGH);
+
+	sx126x_mod_params_lora_t lora_mod_params;
+	lora_mod_params.sf = map_spreading_factor(relay_lora_params->spreading_factor);
+	lora_mod_params.bw = map_bandwidth(relay_lora_params->bandwidth);
+	lora_mod_params.cr = map_coding_rate(relay_lora_params->coding_rate);
+	lora_mod_params.ldro = compute_lora_ldro(*relay_lora_params);
+	sx126x_set_lora_mod_params(&sx126x_hal, &lora_mod_params);
+
+	sx126x_pkt_params_lora_t lora_pkt_params;
+	lora_pkt_params.preamble_len_in_symb = symbol_len; // Calculated
+	lora_pkt_params.header_type          = SX126X_LORA_PKT_EXPLICIT;
+	lora_pkt_params.pld_len_in_bytes     = 255;
+	lora_pkt_params.crc_is_on            = true;
+	lora_pkt_params.invert_iq_is_on      = true;
+	sx126x_set_lora_pkt_params(&sx126x_hal, &lora_pkt_params);
+
+	sx126x_cfg_rx_boosted(&sx126x_hal, true);
+
+	sx126x_set_rf_freq(&sx126x_hal, relay_lora_params->frequency);
+
+	sx126x_set_dio_irq_params(&sx126x_hal, 0x0fff, 0x0fff, 0x00, 0x00);
+
+	sx126x_set_buffer_base_address(&sx126x_hal, 0x00, 0x00);
+
+	sx126x_set_lora_symb_nb_timeout(&sx126x_hal, 0);
+
+	if (rx_func != NULL) {
+		rx_func();
+	}
+	sx126x_set_rx_duty_cycle(&sx126x_hal, detect_time, relay_lora_params->symbol_time - detect_time);
+
+	// detect_preamble = false;
+	attachInterrupt(digitalPinToInterrupt(sx126x_hal.irq), irq_relay, RISING);
+
+	if (sleep_func != NULL) {
+		sleep_func();
+    } else {
+		// while(!detect_preamble) {};
+		// detect_preamble = false;
+	}
+
+	sx126x_get_irq_status(&sx126x_hal, &irq_status);
+
+	if (irq_status & SX126X_IRQ_PREAMBLE_DETECTED) {
+  		sx126x_set_standby(&sx126x_hal, SX126X_STANDBY_CFG_RC);
+
+		sx126x_clear_irq_status(&sx126x_hal, SX126X_IRQ_ALL);
+
+		sx126x_set_rx(&sx126x_hal, 2000);
+
+		while (1) {
+			sx126x_get_irq_status(&sx126x_hal, &irq_status);
+			if (irq_status & SX126X_IRQ_RX_DONE) {
+				break;
+			}
+			if (irq_status & SX126X_IRQ_TIMEOUT) {
+				break;
+			}
+		}
+
+		sx126x_clear_irq_status(&sx126x_hal, SX126X_IRQ_ALL);
+
+		if (irq_status & SX126X_IRQ_TIMEOUT) {
+   			payload_len = 0;
+			return RFT_STATUS_RX_TIMEOUT;
+   		}
+
+		sx126x_set_standby(&sx126x_hal, SX126X_STANDBY_CFG_RC);
+
+		sx126x_pkt_status_lora_t pkt_status;
+		sx126x_get_lora_pkt_status(&sx126x_hal, &pkt_status);
+
+		relay_lora_params->rssi = pkt_status.rssi_pkt_in_dbm;
+		relay_lora_params->snr = pkt_status.snr_pkt_in_db;
+		relay_lora_params->signal_rssi = pkt_status.signal_rssi_pkt_in_dbm;
 
 		sx126x_rx_buffer_status_t rx_buffer_status;
 		sx126x_get_rx_buffer_status(&sx126x_hal, &rx_buffer_status);
@@ -715,6 +822,64 @@ sx126x_lora_cr_t rfthings_sx126x::map_coding_rate(rft_lora_coding_rate_t coding_
 }
 
 uint8_t rfthings_sx126x::compute_lora_ldro(void) {
+	switch( lora_params.bandwidth )
+	{
+		case RFT_LORA_BANDWIDTH_500KHZ:
+			return 0x00;
+			break;
+		case RFT_LORA_BANDWIDTH_250KHZ:
+			if( lora_params.spreading_factor == RFT_LORA_SPREADING_FACTOR_12 )
+			{
+				return 0x01;
+			}
+			else
+			{
+				return 0x00;
+			}
+			break;
+		case RFT_LORA_BANDWIDTH_125KHZ:
+			if( lora_params.spreading_factor >= RFT_LORA_SPREADING_FACTOR_11 )
+			{
+				return 0x01;
+			}
+			else
+			{
+				return 0x00;
+			}
+			break;
+		case RFT_LORA_BANDWIDTH_62KHZ:
+			if( lora_params.spreading_factor >= RFT_LORA_SPREADING_FACTOR_10 )
+			{
+				return 0x01;
+			}
+			else
+			{
+				return 0x00;
+			}
+			break;
+		case RFT_LORA_BANDWIDTH_41KHZ:
+			if( lora_params.spreading_factor >= RFT_LORA_SPREADING_FACTOR_9 )
+			{
+				return 0x01;
+			}
+			else
+			{
+				return 0x00;
+			}
+			break;
+		case RFT_LORA_BANDWIDTH_31KHZ:
+		case RFT_LORA_BANDWIDTH_20KHZ:
+		case RFT_LORA_BANDWIDTH_15KHZ:
+		case RFT_LORA_BANDWIDTH_10KHZ:
+			return 0x01;
+			break;
+		default:
+			return 0x00;
+			break;
+	}
+}
+
+uint8_t rfthings_sx126x::compute_lora_ldro(rft_lora_params_t lora_params) {
 	switch( lora_params.bandwidth )
 	{
 		case RFT_LORA_BANDWIDTH_500KHZ:

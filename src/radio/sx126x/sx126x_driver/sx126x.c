@@ -1261,7 +1261,7 @@ sx126x_status_t sx126x_set_gfsk_sync_word( const void* context, const uint8_t* s
     return status;
 }
 
-sx126x_status_t sx126x_set_lora_sync_word( const void* context, const uint8_t sync_word )
+sx126x_status_t sx126x_set_lora_sync_word( const void* context, const uint16_t sync_word )
 {
     sx126x_status_t status    = SX126X_STATUS_ERROR;
     uint8_t         buffer[2] = { 0x00 };
@@ -1270,13 +1270,36 @@ sx126x_status_t sx126x_set_lora_sync_word( const void* context, const uint8_t sy
 
     if( status == SX126X_STATUS_OK )
     {
-        buffer[0] = ( buffer[0] & ~0xF0 ) + ( sync_word & 0xF0 );
-        buffer[1] = ( buffer[1] & ~0xF0 ) + ( ( sync_word & 0x0F ) << 4 );
+        // buffer[0] = ( buffer[0] & ~0xF0 ) + ( sync_word & 0xF0 );
+        // buffer[1] = ( buffer[1] & ~0xF0 ) + ( ( sync_word & 0x0F ) << 4 );
+
+        buffer[1] = ( sync_word & 0xFF );
+        buffer[0] = ( (sync_word >> 8) & 0xFF );
 
         status = sx126x_write_register( context, SX126X_REG_LR_SYNCWORD, buffer, 2 );
     }
 
     return status;
+}
+
+sx126x_status_t sx126x_get_lora_sync_word( const void* context, uint16_t* sync_word )
+{
+    sx126x_status_t status1    = SX126X_STATUS_ERROR;
+    sx126x_status_t status2    = SX126X_STATUS_ERROR;
+    uint8_t         buffer[2] = { 0x00 };
+
+    status1 = sx126x_read_register( context, SX126X_REG_LR_SYNCWORD, buffer, 1 );
+    status2 = sx126x_read_register( context, SX126X_REG_LR_SYNCWORD+1, buffer+1, 1 );
+
+    if( (status1 == SX126X_STATUS_OK) && (status2 == SX126X_STATUS_OK) )
+    {
+        (*sync_word) = ((buffer[1] & 0xFF) << 8) | (buffer[0] & 0xFF);
+        return SX126X_STATUS_OK;
+    }
+    else
+    {
+        return SX126X_STATUS_ERROR;
+    }
 }
 
 sx126x_status_t sx126x_set_gfsk_crc_seed( const void* context, uint16_t seed )

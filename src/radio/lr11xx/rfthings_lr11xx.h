@@ -54,7 +54,7 @@ public:
     void stop_continuous_wave(void);
     rft_status_t sweep_continuous_wave(uint32_t start_freq, uint32_t stop_freq, uint32_t step, uint16_t duration);
 
-    void scan_gnss_autonomous(uint8_t nb_sat);
+    void scan_gnss_autonomous(uint8_t nb_sat = 20);
     void get_gnss_satelites(uint8_t *nb_detected_satellites, lr11xx_gnss_detected_satellite_t *detected_satellite_id_snr_doppler);
 
     void get_nav_message(uint8_t *nav_message, uint16_t *nav_message_len);

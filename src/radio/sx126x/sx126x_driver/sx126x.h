@@ -57,6 +57,8 @@ extern "C" {
  * --- PUBLIC CONSTANTS --------------------------------------------------------
  */
 
+#define T_STEP 15.625
+
 /**
  * @brief Maximum value for parameter timeout_in_rtc_step in both functions @ref sx126x_set_rx_with_timeout_in_rtc_step
  * and @ref sx126x_set_tx_with_timeout_in_rtc_step
@@ -1492,7 +1494,8 @@ sx126x_status_t sx126x_set_gfsk_sync_word( const void* context, const uint8_t* s
  *
  * @returns Operation status
  */
-sx126x_status_t sx126x_set_lora_sync_word( const void* context, const uint8_t sync_word );
+sx126x_status_t sx126x_set_lora_sync_word( const void* context, const uint16_t sync_word );
+sx126x_status_t sx126x_get_lora_sync_word( const void* context, uint16_t* sync_word );
 
 /**
  * @brief Configure the seed used to compute CRC in GFSK packet

@@ -27,6 +27,8 @@
 
 #include <RTC.h>
 
+extern volatile bool detect_preamble;
+
 class rfthings_sx126x : public rfthings_radio {
         public:
         rfthings_sx126x(byte nss_pin, byte rst_pin, byte busy_pin, byte dio1_pin, byte rxen_pin);
@@ -36,7 +38,7 @@ class rfthings_sx126x : public rfthings_radio {
 
         rft_status_t send_lora(byte *payload, uint32_t payload_len, uint32_t timeout, void (*tx_func)());
         rft_status_t receive_lora(byte *payload, uint32_t payload_len, uint32_t timeout, void(*rx_func)());
-        rft_status_t send_uplink(byte *payload, uint32_t payload_len, void (*tx_func)(), void(*rx_func)());
+        rft_status_t send_uplink(byte *payload, uint32_t payload_len, void (*tx_func)(), void(*rx_func)(), bool send_to_relay = false);
         rft_status_t send_join_request(void (*tx_func)(), void(*rx_func)());
         rft_status_t check_hardware(void);
 
@@ -50,7 +52,9 @@ class rfthings_sx126x : public rfthings_radio {
         // LoRaWAN relay application
         rft_status_t relay(byte *payload, uint32_t &payload_len, void (*rx_func)(), void (*sleep_func)());
         rft_status_t relay(rft_lora_params_t* relay_lora_params, byte *payload, uint32_t &payload_len, void (*rx_func)(), void (*sleep_func)());
-        static void irq_relay(void);
+        static void irq_relay(void) {
+	        detect_preamble = true;
+        }
 
         void set_lora_pkt_param(sx126x_pkt_params_lora_t param);
 
@@ -65,7 +69,4 @@ class rfthings_sx126x : public rfthings_radio {
 
         uint8_t compute_lora_ldro(void);
         uint8_t compute_lora_ldro(rft_lora_params_t lora_params);
-
-        // LoRaWAN relay application
-        // volatile bool detect_preamble;
 };

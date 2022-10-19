@@ -96,9 +96,12 @@ typedef struct {
 	// Frequency to send/reveive LoRa
 	uint32_t frequency;
 
-	// Use for relay application
-	uint32_t symbol_time;
-	uint8_t detect_symbol;
+	// Use for Relay application
+	bool send_to_relay;
+	uint32_t relay_sleep_interval_us; // Default value is 1E6 us (1 second)
+	uint8_t relay_rx_symbol; // Default value is 5 symbols
+	uint8_t relay_max_rx_packet_length; // Default value is 120 bytes
+
 } rft_lora_params_t;
 
 // LoraWAN activation types

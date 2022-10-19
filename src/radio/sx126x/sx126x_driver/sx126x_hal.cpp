@@ -30,10 +30,10 @@ sx126x_hal_status_t sx126x_hal_write( const void* context, const uint8_t* comman
 
     while(digitalRead(sx126x_hal->busy)) { }
     
-    digitalWrite(sx126x_hal->nss, LOW);
 #ifdef SPI_HAS_TRANSACTION
     SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
 #endif
+    digitalWrite(sx126x_hal->nss, LOW);
 
     uint8_t buffer[255];
     memcpy(buffer, command, command_length);
@@ -55,10 +55,10 @@ sx126x_hal_status_t sx126x_hal_read( const void* context, const uint8_t* command
 
     while(digitalRead(sx126x_hal->busy)) { }
 
-    digitalWrite(sx126x_hal->nss, LOW);
 #ifdef SPI_HAS_TRANSACTION
     SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
 #endif
+    digitalWrite(sx126x_hal->nss, LOW);
 
     uint8_t buffer[255];
     memcpy(buffer, command, command_length);
@@ -81,7 +81,7 @@ sx126x_hal_status_t sx126x_hal_reset( const void* context ) {
     delay(20);
     digitalWrite(sx126x_hal->reset, LOW);
     delay(50);
-    digitalWrite(sx126x_hal->reset, HIGH);;
+    digitalWrite(sx126x_hal->reset, HIGH);
     delay(50);
 
     return SX126X_HAL_STATUS_OK;
@@ -90,10 +90,10 @@ sx126x_hal_status_t sx126x_hal_reset( const void* context ) {
 sx126x_hal_status_t sx126x_hal_wakeup( const void* context ) {
     sx126x_hal_t* sx126x_hal = ( sx126x_hal_t* ) context;
     
-    digitalWrite(sx126x_hal->nss, LOW);
 #ifdef SPI_HAS_TRANSACTION
     SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
 #endif
+    digitalWrite(sx126x_hal->nss, LOW);
 
     SPI.transfer(SX126X_NOP, 1);
 

@@ -29,9 +29,11 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
     lora_params.snr = 0;
     lora_params.rssi = 0;
     lora_params.signal_rssi = 0;
-
-    lora_params.symbol_time = 0;
-    lora_params.detect_symbol = 0;
+    
+    lora_params.send_to_relay = false;
+	lora_params.relay_sleep_interval_us = 1E6; // 1 second
+	lora_params.relay_rx_symbol = 5; // Default value is 5 symbols
+	lora_params.relay_max_rx_packet_length = 120; // Default value is 120 bytes
 
     lorawan_params.activation_type = RFT_LORAWAN_ACTIVATION_TYPE_ABP;
 
@@ -198,20 +200,44 @@ int16_t rfthings_radio::get_signal_rssi(void) {
     return lora_params.signal_rssi;
 }
 
-uint32_t rfthings_radio::get_symbol_time(void) {
-    return lora_params.symbol_time;
+bool rfthings_radio::get_send_to_relay(void)
+{
+    return lora_params.send_to_relay;
 }
 
-void rfthings_radio::set_symbol_time(uint32_t symbol_time) {
-    lora_params.symbol_time = symbol_time;
+uint32_t rfthings_radio::get_relay_sleep_interval_us(void)
+{
+    return lora_params.relay_sleep_interval_us;
 }
 
-void rfthings_radio::set_detect_symbol(uint8_t detect_symbol) {
-    lora_params.detect_symbol = detect_symbol;
+uint8_t rfthings_radio::get_relay_rx_symbol(void)
+{
+    return lora_params.relay_rx_symbol;
 }
 
-uint8_t rfthings_radio::get_detect_symbol(void) {
-    return lora_params.detect_symbol;
+uint8_t rfthings_radio::get_relay_max_rx_packet_length(void)
+{
+    return lora_params.relay_max_rx_packet_length;
+}
+
+void rfthings_radio::set_send_to_relay(bool _send_to_relay)
+{
+    lora_params.send_to_relay = _send_to_relay;
+}
+
+void rfthings_radio::set_relay_sleep_interval_us(uint32_t _relay_sleep_interval_us)
+{
+    lora_params.relay_sleep_interval_us = _relay_sleep_interval_us;
+}
+
+void rfthings_radio::set_relay_rx_symbol(uint8_t _relay_rx_symbol)
+{
+    lora_params.relay_rx_symbol = _relay_rx_symbol;
+}
+
+void rfthings_radio::set_relay_max_rx_packet_length(uint8_t _relay_max_rx_packet_length)
+{
+    lora_params.relay_max_rx_packet_length = _relay_max_rx_packet_length;
 }
 
 void rfthings_radio::set_lorawan_activation_type(rft_lorawan_activation_type_t activation_type) {

@@ -36,6 +36,11 @@
 
 #define TX_INTERVAL 10
 
+#define SE2341L_CPS 43
+#define SE2341L_CTX 42
+#define SE2341L_CSD 35
+#define SE2341L_ANT 34
+
 #define LNA_CTRL_MCU_PIN 41
 
 // Keys and device address are MSB
@@ -115,7 +120,7 @@ void loop() {
     Serial.print("Sending LoRaWAN message: ");
 
     build_payload();
-    status = lr11xx.send_uplink((byte*)payload, payload_len);
+    status = lr11xx.send_uplink((byte*)payload, payload_len, se2341l_tx, se2341l_rx);
 
     if (status == RFT_STATUS_OK) {
         Serial.println("receive downlink packet");
@@ -142,4 +147,34 @@ void loop() {
 void build_payload(void) {
     message.toCharArray(payload, 255); 
     payload_len = message.length();
+}
+
+/* LNA Controlling Functions */
+
+void se2341l_tx() {
+    digitalWrite(SE2341L_CSD, HIGH);
+    digitalWrite(SE2341L_ANT, HIGH);
+    digitalWrite(SE2341L_CTX, HIGH);
+    digitalWrite(SE2341L_CPS, LOW);
+}
+
+void se2341l_rx() {
+    digitalWrite(SE2341L_CSD, HIGH);
+    digitalWrite(SE2341L_ANT, HIGH);
+    digitalWrite(SE2341L_CTX, LOW);
+    digitalWrite(SE2341L_CPS, HIGH);
+}
+
+void se2341l_bypass() {
+    digitalWrite(SE2341L_CSD, HIGH);
+    digitalWrite(SE2341L_ANT, HIGH);
+    digitalWrite(SE2341L_CTX, LOW);
+    digitalWrite(SE2341L_CPS, LOW);
+}
+
+void se2341l_off() {
+    digitalWrite(SE2341L_CSD, LOW);
+    digitalWrite(SE2341L_ANT, HIGH);
+    digitalWrite(SE2341L_CTX, LOW);
+    digitalWrite(SE2341L_CPS, LOW);
 }

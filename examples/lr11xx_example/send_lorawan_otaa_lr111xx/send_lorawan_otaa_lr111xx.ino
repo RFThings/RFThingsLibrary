@@ -132,7 +132,7 @@ void setup() {
 void loop() {
     if (!join_accept) {
         Serial.print("Sending join request: ");
-        status = lr11xx.send_join_request();
+        status = lr11xx.send_join_request(se2341l_tx, se2341l_rx);
 
         if (status == RFT_STATUS_OK) {
             dev_addr = lr11xx.get_device_address();
@@ -166,7 +166,7 @@ void loop() {
         Serial.print("Sending LoRaWAN message: ");
 
         build_payload();
-        status = lr11xx.send_uplink((byte*)payload, payload_len);
+        status = lr11xx.send_uplink((byte*)payload, payload_len, se2341l_tx, se2341l_rx);
 
         if (status == RFT_STATUS_OK) {
             Serial.println("receive downlink packet");
@@ -195,6 +195,8 @@ void build_payload(void) {
     message.toCharArray(payload, 255); 
     payload_len = message.length();
 }
+
+/* LNA Controlling Functions */
 
 void se2341l_tx() {
     digitalWrite(SE2341L_CSD, HIGH);

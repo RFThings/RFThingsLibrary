@@ -198,12 +198,20 @@ int16_t rfthings_radio::get_signal_rssi(void) {
     return lora_params.signal_rssi;
 }
 
+uint32_t rfthings_radio::get_symbol_time(void) {
+    return lora_params.symbol_time;
+}
+
 void rfthings_radio::set_symbol_time(uint32_t symbol_time) {
     lora_params.symbol_time = symbol_time;
 }
 
 void rfthings_radio::set_detect_symbol(uint8_t detect_symbol) {
     lora_params.detect_symbol = detect_symbol;
+}
+
+uint8_t rfthings_radio::get_detect_symbol(void) {
+    return lora_params.detect_symbol;
 }
 
 void rfthings_radio::set_lorawan_activation_type(rft_lorawan_activation_type_t activation_type) {

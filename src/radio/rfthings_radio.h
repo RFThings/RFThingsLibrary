@@ -67,7 +67,9 @@ class rfthings_radio {
         int16_t get_signal_rssi(void);
 
         // LoRaWAN relay application
+        uint32_t get_symbol_time(void);
         void set_symbol_time(uint32_t symbol_time);
+        uint8_t get_detect_symbol(void);
         void set_detect_symbol(uint8_t detect_symbol);
 
         // set LoRaWAN params

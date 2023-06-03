@@ -523,12 +523,17 @@ void rfthings_lr11xx::get_nav_message(uint8_t *nav_message, uint16_t *nav_messag
 
 rft_status_t rfthings_lr11xx::update_firmware(lr11xx_fw_update_t update, const uint32_t *buffer, uint32_t length)
 {
-	if (!lr11xx_is_fw_compatible_with_chip(update, lr11xx_bootloader_version.fw))
+	lr11xx_bootloader_version_t version_bootloader = { 0 };
+	
+	// lr11xx_system_reset(&lr11xx_hal);
+	lr11xx_system_reboot(&lr11xx_hal, true);
+	
+	lr11xx_bootloader_get_version( &lr11xx_hal, &version_bootloader );
+
+	if (!lr11xx_is_fw_compatible_with_chip(update, version_bootloader.fw))
 	{
 		return RFT_STATUS_ERROR_WRONG_LR11XX_FIRMWARE_VERSION;
 	}
-
-	lr11xx_system_reset(&lr11xx_hal);
 
 	lr11xx_bootloader_erase_flash(&lr11xx_hal);
 
@@ -541,15 +546,14 @@ rft_status_t rfthings_lr11xx::update_firmware(lr11xx_fw_update_t update, const u
 
 bool rfthings_lr11xx::lr11xx_is_fw_compatible_with_chip(lr11xx_fw_update_t update, uint16_t bootloader_version)
 {
-	if (update == LR1110_FIRMWARE_UPDATE_TO_TRX && bootloader_version != 0x6500)
+	if ((update == LR1110_FIRMWARE_UPDATE_TO_TRX) && (bootloader_version != 0x6500))
 	{
 		return false;
 	}
-	if (update == LR1120_FIRMWARE_UPDATE_TO_TRX && bootloader_version != 0x2000)
+	if ((update == LR1120_FIRMWARE_UPDATE_TO_TRX) && (bootloader_version != 0x2000))
 	{
 		return false;
 	}
-
 	return true;
 }
 

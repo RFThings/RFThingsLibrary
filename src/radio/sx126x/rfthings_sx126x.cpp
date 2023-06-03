@@ -22,6 +22,10 @@
 
 #include "rfthings_sx126X.h"
 
+#if !defined(voidFuncPtr)
+typedef void (*voidFuncPtr)(void);
+#endif
+
 volatile bool detect_preamble;
 
 rfthings_sx126x::rfthings_sx126x(byte nss_pin, byte rst_pin, byte busy_pin, byte dio1_pin, byte antenna_switch_pin)

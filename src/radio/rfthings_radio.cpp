@@ -1,39 +1,44 @@
 /*
-* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-* @@@@@@             ,@@@@@@@@@@@                 @@@@@@
-* @@@@@@                  @@@@@@@                 @@@@@@  @@@@@@@@@@@@@@@@@  @@@@              @@@
-* @@@@@@                    @@@@@                 @@@@@@        @@@@@        @@@@
-* @@@@@@       @@@@@@        @@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@  @@@@@@      @@@     @@@  @@@@@@        @@@@@@   @@@      @@@@@@@
-* @@@@@@       @@@@@@@       @@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@@@   @@@@     @@@    @@@@@@   @@@@@    @@@@@   @@@@@@   @@@@    @@@@
-* @@@@@@                    @@@@@                @@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@   @@@@       @@@@   @@@@@@
-* @@@@@@                  @@@@@@@                @@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@   @@@@       @@@@       @@@@@@@@
-* @@@@@@       @@        @@@@@@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@   @@@@@     @@@@@   @@@      @@@@
-* @@@@@@       @@@@       @@@@@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@     @@@@@@@@@@@@@    @@@@@@@@@@@
-* @@@@@@       @@@@@        @@@@@       @@@@@@@@@@@@@@@@                                                                          @@@@
-* @@@@@@       @@@@@@@       @@@@       @@@@@@@@@@@@@@@@                                                                @@@@    #@@@@
-* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                                                                  .@@@@@@@
-* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-* @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-*
-* Author: m1nhle
-*/
+ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ * @@@@@@             ,@@@@@@@@@@@                 @@@@@@
+ * @@@@@@                  @@@@@@@                 @@@@@@  @@@@@@@@@@@@@@@@@  @@@@              @@@
+ * @@@@@@                    @@@@@                 @@@@@@        @@@@@        @@@@
+ * @@@@@@       @@@@@@        @@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@  @@@@@@      @@@     @@@  @@@@@@        @@@@@@   @@@      @@@@@@@
+ * @@@@@@       @@@@@@@       @@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@@@   @@@@     @@@    @@@@@@   @@@@@    @@@@@   @@@@@@   @@@@    @@@@
+ * @@@@@@                    @@@@@                @@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@   @@@@       @@@@   @@@@@@
+ * @@@@@@                  @@@@@@@                @@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@   @@@@       @@@@       @@@@@@@@
+ * @@@@@@       @@        @@@@@@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@   @@@@@     @@@@@   @@@      @@@@
+ * @@@@@@       @@@@       @@@@@@@       @@@@@@@@@@@@@@@@        @@@@@        @@@@      @@@@    @@@    @@@@      @@@@     @@@@@@@@@@@@@    @@@@@@@@@@@
+ * @@@@@@       @@@@@        @@@@@       @@@@@@@@@@@@@@@@                                                                          @@@@
+ * @@@@@@       @@@@@@@       @@@@       @@@@@@@@@@@@@@@@                                                                @@@@    #@@@@
+ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@                                                                  .@@@@@@@
+ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ *
+ * Author: m1nhle
+ */
 
 #include "rfthings_radio.h"
 
-rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
+rft_status_t rfthings_radio::create_params_by_region(rft_region_t region)
+{
     lora_params.coding_rate = RFT_LORA_CODING_RATE_4_5;
     lora_params.syncword = RFT_LORA_SYNCWORD_PUBLIC;
 
     lora_params.snr = 0;
     lora_params.rssi = 0;
     lora_params.signal_rssi = 0;
-    
+    lorawan_params.rx_window = 0;
+
+    lorawan_params.rx_fopts_len = 0;
+    memset(lorawan_params.rx_fopts, 0, 15);
+
     lora_params.send_to_relay = false;
-	lora_params.relay_sleep_interval_us = 1E6; // 1 second
-	lora_params.relay_rx_symbol = 5; // Default value is 5 symbols
-	lora_params.relay_max_rx_packet_length = 120; // Default value is 120 bytes
+    lora_params.relay_sleep_interval_us = 1E6;    // 1 second
+    lora_params.relay_rx_symbol = 5;              // Default value is 5 symbols
+    lora_params.relay_max_rx_packet_length = 120; // Default value is 120 bytes
 
     lorawan_params.activation_type = RFT_LORAWAN_ACTIVATION_TYPE_ABP;
 
@@ -53,7 +58,8 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
     lorawan_params.rx_port = 0;
     lorawan_params.rx_length = 0;
 
-    if (region == RFT_REGION_EU863_870) {
+    if (region == RFT_REGION_EU863_870)
+    {
         lora_params.tx_power = 16;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -63,7 +69,9 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 869525000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_9;
-    } else if (region == RFT_REGION_US902_928) {
+    }
+    else if (region == RFT_REGION_US902_928)
+    {
         lora_params.tx_power = 18;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -73,7 +81,9 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 923300000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_500KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_12;
-    } else if (region == RFT_REGION_CN470_510) {
+    }
+    else if (region == RFT_REGION_CN470_510)
+    {
         lora_params.tx_power = 18;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -83,7 +93,9 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 505300000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_12;
-    } else if (region == RFT_REGION_AU915_928) {
+    }
+    else if (region == RFT_REGION_AU915_928)
+    {
         lora_params.tx_power = 18;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -93,7 +105,9 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 923300000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_500KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_12;
-    } else if (region == RFT_REGION_AS920_923) {
+    }
+    else if (region == RFT_REGION_AS920_923)
+    {
         lora_params.tx_power = 18;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -103,7 +117,9 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 923200000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_10;
-    } else if (region == RFT_REGION_AS923_925) {
+    }
+    else if (region == RFT_REGION_AS923_925)
+    {
         lora_params.tx_power = 19;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -113,7 +129,9 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 923200000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_10;
-    } else if (region == RFT_REGION_KR920_923) {
+    }
+    else if (region == RFT_REGION_KR920_923)
+    {
         lora_params.tx_power = 18;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -123,7 +141,9 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 922900000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_12;
-    } else if (region == RFT_REGION_IN865_867) {
+    }
+    else if (region == RFT_REGION_IN865_867)
+    {
         lora_params.tx_power = 18;
         lora_params.spreading_factor = RFT_LORA_SPREADING_FACTOR_7;
         lora_params.bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
@@ -133,71 +153,103 @@ rft_status_t rfthings_radio::create_params_by_region(rft_region_t region) {
         lorawan_params.rx2_frequency = 866550000;
         lorawan_params.rx2_bandwidth = RFT_LORA_BANDWIDTH_125KHZ;
         lorawan_params.rx2_spreading_factor = RFT_LORA_SPREADING_FACTOR_10;
-    } else {
+    }
+    else
+    {
         return RFT_STATUS_ERROR_INVALID_REGION;
     }
 
     return RFT_STATUS_OK;
 }
 
-void rfthings_radio::set_tx_power(int8_t tx_power) {
+void rfthings_radio::set_tx_power(int8_t tx_power)
+{
     lora_params.tx_power = tx_power;
 }
 
-void rfthings_radio::set_spreading_factor(rft_lora_spreading_factor_t spreading_factor) {
+void rfthings_radio::set_spreading_factor(rft_lora_spreading_factor_t spreading_factor)
+{
     lora_params.spreading_factor = spreading_factor;
 }
 
-void rfthings_radio::set_coding_rate(rft_lora_coding_rate_t coding_rate) { 
+void rfthings_radio::set_coding_rate(rft_lora_coding_rate_t coding_rate)
+{
     lora_params.coding_rate = coding_rate;
 }
 
-void rfthings_radio::set_bandwidth(rft_lora_bandwidth_t bandwidth) {
+void rfthings_radio::set_bandwidth(rft_lora_bandwidth_t bandwidth)
+{
     lora_params.bandwidth = bandwidth;
 }
 
-void rfthings_radio::set_syncword(rft_lora_syncword_t syncword) {
+void rfthings_radio::set_syncword(rft_lora_syncword_t syncword)
+{
     lora_params.syncword = syncword;
 }
 
-void rfthings_radio::set_frequency(uint32_t frequency) {
+void rfthings_radio::set_frequency(uint32_t frequency)
+{
     lora_params.frequency = frequency;
 }
 
-int8_t rfthings_radio:: get_tx_power(void) {
-    return lora_params.tx_power; 
+int8_t rfthings_radio::get_tx_power(void)
+{
+    return lora_params.tx_power;
 }
 
-rft_lora_spreading_factor_t rfthings_radio:: get_spreading_factor(void) {
+rft_lora_spreading_factor_t rfthings_radio::get_spreading_factor(void)
+{
     return lora_params.spreading_factor;
 }
 
-rft_lora_coding_rate_t rfthings_radio:: get_coding_rate(void) {
+rft_lora_coding_rate_t rfthings_radio::get_coding_rate(void)
+{
     return lora_params.coding_rate;
 }
 
-rft_lora_bandwidth_t rfthings_radio:: get_bandwidth(void) {
+rft_lora_bandwidth_t rfthings_radio::get_bandwidth(void)
+{
     return lora_params.bandwidth;
 }
 
-rft_lora_syncword_t rfthings_radio:: get_syncword(void) {
+rft_lora_syncword_t rfthings_radio::get_syncword(void)
+{
     return lora_params.syncword;
 }
 
-uint32_t rfthings_radio:: get_frequency(void) {
+uint32_t rfthings_radio::get_frequency(void)
+{
     return lora_params.frequency;
 }
 
-int8_t rfthings_radio::get_snr(void) {
+int8_t rfthings_radio::get_snr(void)
+{
     return lora_params.snr;
 }
 
-int16_t rfthings_radio::get_rssi(void) {
+int16_t rfthings_radio::get_rssi(void)
+{
     return lora_params.rssi;
 }
 
-int16_t rfthings_radio::get_signal_rssi(void) {
+int16_t rfthings_radio::get_signal_rssi(void)
+{
     return lora_params.signal_rssi;
+}
+
+uint8_t rfthings_radio::get_rx_windows(void)
+{
+    return lorawan_params.rx_window;
+}
+
+uint8_t *rfthings_radio::get_rx_fopts(void)
+{
+    return lorawan_params.rx_fopts;
+}
+
+uint8_t rfthings_radio::get_rx_fopts_len(void)
+{
+    return lorawan_params.rx_fopts_len;
 }
 
 bool rfthings_radio::get_send_to_relay(void)
@@ -240,101 +292,125 @@ void rfthings_radio::set_relay_max_rx_packet_length(uint8_t _relay_max_rx_packet
     lora_params.relay_max_rx_packet_length = _relay_max_rx_packet_length;
 }
 
-void rfthings_radio::set_lorawan_activation_type(rft_lorawan_activation_type_t activation_type) {
+void rfthings_radio::set_lorawan_activation_type(rft_lorawan_activation_type_t activation_type)
+{
     lorawan_params.activation_type = activation_type;
 }
 
-void rfthings_radio::set_device_address(uint8_t dev_addr[4]) {
+void rfthings_radio::set_device_address(uint8_t dev_addr[4])
+{
     memcpy(lorawan_params.device_address, dev_addr, 4);
 }
 
-void rfthings_radio::set_network_session_key(uint8_t nwkS_key[16]) {
+void rfthings_radio::set_network_session_key(uint8_t nwkS_key[16])
+{
     memcpy(lorawan_params.network_session_key, nwkS_key, 16);
 }
-void rfthings_radio::set_application_session_key(uint8_t appS_key[16]) {
+void rfthings_radio::set_application_session_key(uint8_t appS_key[16])
+{
     memcpy(lorawan_params.application_session_key, appS_key, 16);
 }
 
-void rfthings_radio::set_devive_eui(uint8_t dev_eui[8]) {
+void rfthings_radio::set_devive_eui(uint8_t dev_eui[8])
+{
     memcpy(lorawan_params.devive_eui, dev_eui, 8);
 }
 
-void rfthings_radio::set_application_eui(uint8_t app_eui[8]) {
+void rfthings_radio::set_application_eui(uint8_t app_eui[8])
+{
     memcpy(lorawan_params.application_eui, app_eui, 8);
 }
 
-void rfthings_radio::set_application_key(uint8_t app_key[16]) {
+void rfthings_radio::set_application_key(uint8_t app_key[16])
+{
     memcpy(lorawan_params.application_key, app_key, 16);
 }
 
-void rfthings_radio::set_framecounter_size(rft_lorawan_framecounter_size_t framecounter_size) {
+void rfthings_radio::set_framecounter_size(rft_lorawan_framecounter_size_t framecounter_size)
+{
     lorawan_params.framecounter_size = framecounter_size;
 }
 
-void rfthings_radio::set_tx_port(uint8_t tx_port) {
+void rfthings_radio::set_tx_port(uint8_t tx_port)
+{
     lorawan_params.tx_port = tx_port;
 }
 
-void rfthings_radio::set_rx1_delay(uint32_t rx1_delay) {
+void rfthings_radio::set_rx1_delay(uint32_t rx1_delay)
+{
     lorawan_params.rx1_delay = rx1_delay;
 }
 
-rft_lorawan_activation_type_t rfthings_radio::get_lorawan_activation_type(void) {
+rft_lorawan_activation_type_t rfthings_radio::get_lorawan_activation_type(void)
+{
     return lorawan_params.activation_type;
 }
 
-uint8_t* rfthings_radio::get_device_address(void) {
+uint8_t *rfthings_radio::get_device_address(void)
+{
     return lorawan_params.device_address;
 }
 
-uint8_t* rfthings_radio::get_network_session_key(void) {
+uint8_t *rfthings_radio::get_network_session_key(void)
+{
     return lorawan_params.network_session_key;
 }
 
-uint8_t* rfthings_radio::get_application_session_key(void) {
+uint8_t *rfthings_radio::get_application_session_key(void)
+{
     return lorawan_params.application_session_key;
 }
 
-uint8_t* rfthings_radio::get_devive_eui(void) {
+uint8_t *rfthings_radio::get_devive_eui(void)
+{
     return lorawan_params.devive_eui;
 }
 
-uint8_t* rfthings_radio::get_application_eui(void) {
+uint8_t *rfthings_radio::get_application_eui(void)
+{
     return lorawan_params.application_eui;
 }
 
-uint8_t* rfthings_radio::get_application_key(void) {
+uint8_t *rfthings_radio::get_application_key(void)
+{
     return lorawan_params.application_key;
 }
 
-rft_lorawan_framecounter_size_t rfthings_radio::get_framecounter_size(void) {
+rft_lorawan_framecounter_size_t rfthings_radio::get_framecounter_size(void)
+{
     return lorawan_params.framecounter_size;
 }
-uint8_t rfthings_radio::get_tx_port(void) {
+uint8_t rfthings_radio::get_tx_port(void)
+{
     return lorawan_params.tx_port;
 }
 
-uint32_t rfthings_radio::get_framecounter_uplink(void) {
+uint32_t rfthings_radio::get_framecounter_uplink(void)
+{
     return lorawan_params.framecounter_uplink;
 }
 
-uint32_t rfthings_radio::get_framecounter_downlink(void) {
+uint32_t rfthings_radio::get_framecounter_downlink(void)
+{
     return lorawan_params.framecounter_downlink;
 }
 
-uint8_t rfthings_radio::get_rx_port(void) {
+uint8_t rfthings_radio::get_rx_port(void)
+{
     return lorawan_params.rx_port;
 }
 
-uint8_t rfthings_radio::get_rx_length(void) {
+uint8_t rfthings_radio::get_rx_length(void)
+{
     return lorawan_params.rx_length;
 }
 
-uint8_t rfthings_radio::build_uplink_packet(unsigned char *payload, uint8_t payload_len, unsigned char *lorawan_packet) {
+uint8_t rfthings_radio::build_uplink_packet(unsigned char *payload, uint8_t payload_len, unsigned char *lorawan_packet)
+{
     uint8_t packet_len = 0;
 
-	unsigned char MAC_header = 0x40; // Unconfirmed data up
-	unsigned char FCtrl = 0x00;
+    unsigned char MAC_header = 0x40; // Unconfirmed data up
+    unsigned char FCtrl = 0x00;
     unsigned char MIC[4];
 
     lorawan_packet[0] = MAC_header;
@@ -350,36 +426,48 @@ uint8_t rfthings_radio::build_uplink_packet(unsigned char *payload, uint8_t payl
 
     packet_len = 9;
 
-    Encrypt_Payload(payload, payload_len, lorawan_params.application_session_key, lorawan_params.device_address, 0x00, lorawan_params.framecounter_uplink);
+    if (lorawan_params.tx_port == 0) // MAC Command
+    {
+        Encrypt_Payload(payload, payload_len, lorawan_params.network_session_key, lorawan_params.device_address, 0x00, lorawan_params.framecounter_uplink);
+    }
+    else
+    {
+        Encrypt_Payload(payload, payload_len, lorawan_params.application_session_key, lorawan_params.device_address, 0x00, lorawan_params.framecounter_uplink);
+    }
 
-    for (int i = 0; i < payload_len; i++) {
+    for (int i = 0; i < payload_len; i++)
+    {
         lorawan_packet[packet_len++] = payload[i];
     }
 
     Construct_Data_MIC(lorawan_packet, packet_len, lorawan_params.network_session_key, lorawan_params.device_address, 0x00, lorawan_params.framecounter_uplink, MIC);
 
-    for (int i = 0; i<4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         lorawan_packet[packet_len++] = MIC[i];
     }
 
     return packet_len;
 }
 
-uint8_t rfthings_radio::build_join_request(unsigned char *lorawan_packet) {    
+uint8_t rfthings_radio::build_join_request(unsigned char *lorawan_packet)
+{
     uint8_t packet_len = 0;
 
-	unsigned char MAC_header = 0x00; // Join request
+    unsigned char MAC_header = 0x00; // Join request
     unsigned char MIC[4];
 
     lorawan_packet[0] = MAC_header;
     packet_len = 1;
 
-    for (int i = 0; i < 8; i++) {
-        lorawan_packet[packet_len++] = lorawan_params.application_eui[7-i];
+    for (int i = 0; i < 8; i++)
+    {
+        lorawan_packet[packet_len++] = lorawan_params.application_eui[7 - i];
     }
-    
-    for (int i = 0; i < 8; i++) {
-        lorawan_packet[packet_len++] = lorawan_params.devive_eui[7-i];
+
+    for (int i = 0; i < 8; i++)
+    {
+        lorawan_packet[packet_len++] = lorawan_params.devive_eui[7 - i];
     }
 
     unsigned int dev_nonce = random(0xffff);
@@ -389,17 +477,20 @@ uint8_t rfthings_radio::build_join_request(unsigned char *lorawan_packet) {
 
     Calculate_MIC(lorawan_packet, packet_len, lorawan_params.application_key, MIC);
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         lorawan_packet[packet_len++] = MIC[i];
     }
 
     return packet_len;
 }
 
-rft_status_t rfthings_radio::parse_downlink(unsigned char *payload, uint8_t payload_len) {
+rft_status_t rfthings_radio::parse_downlink(unsigned char *payload, uint8_t &payload_len)
+{
     unsigned char MAC_header = payload[0];
 
-    if (MAC_header == 0x40 || MAC_header == 0x60 || MAC_header == 0x80 || MAC_header == 0xa0) {
+    if (MAC_header == 0x40 || MAC_header == 0x60 || MAC_header == 0x80 || MAC_header == 0xa0)
+    {
         unsigned char dev_addr[4];
         unsigned char FCtrl;
         unsigned char MIC[4];
@@ -413,24 +504,45 @@ rft_status_t rfthings_radio::parse_downlink(unsigned char *payload, uint8_t payl
         lorawan_params.framecounter_downlink = payload[7];
         lorawan_params.framecounter_downlink = (lorawan_params.framecounter_downlink << 8) + payload[6];
 
-        lorawan_params.rx_port = payload[8];
-
-        Construct_Data_MIC(payload, payload_len-4, lorawan_params.network_session_key, dev_addr, 0x01, lorawan_params.framecounter_downlink, MIC);
+        Construct_Data_MIC(payload, payload_len - 4, lorawan_params.network_session_key, dev_addr, 0x01, lorawan_params.framecounter_downlink, MIC);
 
         // Check MIC
-        for (int i = 0; i < 4; i++) {
-            if (payload[payload_len - 4 + i] != MIC[i]) {
+        for (int i = 0; i < 4; i++)
+        {
+            if (payload[payload_len - 4 + i] != MIC[i])
+            {
                 return RFT_STATUS_WRONG_MIC;
             }
         }
 
-        memmove(payload, payload + 9, payload_len - 9 - 4);
-        payload_len = payload_len - 9 - 4;
+        uint8_t FOptsLen = FCtrl & 0x0F;
+        if (FOptsLen != 0) // If FOpts are available
+        {
+            lorawan_params.rx_fopts_len = FOptsLen;
+            memcpy(lorawan_params.rx_fopts, (payload + 8), FOptsLen);
+        }
 
-        if (lorawan_params.rx_port == 0x00) {
+        if (payload_len == (FOptsLen + 12)) // If the downlink has no FPort & FRMPayload
+        {
+            lorawan_params.rx_port = 0;
+            payload_len = 0;
+            lorawan_params.rx_length = payload_len;
+
+            return RFT_STATUS_OK;
+        }
+
+        lorawan_params.rx_port = payload[8 + FOptsLen];
+
+        memmove(payload, payload + 9 + FOptsLen, payload_len - 9 - 4 - FOptsLen);
+        payload_len = payload_len - 9 - 4 - FOptsLen;
+
+        if (lorawan_params.rx_port == 0x00)
+        {
             Encrypt_Payload(payload, payload_len, lorawan_params.network_session_key, lorawan_params.device_address, 0x01, lorawan_params.framecounter_downlink);
-        } else {
-            Encrypt_Payload(payload, payload_len, lorawan_params.network_session_key, lorawan_params.application_session_key, 0x01, lorawan_params.framecounter_downlink);
+        }
+        else
+        {
+            Encrypt_Payload(payload, payload_len, lorawan_params.application_session_key, lorawan_params.device_address, 0x01, lorawan_params.framecounter_downlink);
         }
 
         lorawan_params.rx_length = payload_len;
@@ -438,30 +550,36 @@ rft_status_t rfthings_radio::parse_downlink(unsigned char *payload, uint8_t payl
         return RFT_STATUS_OK;
     }
 
-    return RFT_STATUS_RX_TIMEOUT;
+    return RFT_STATUS_WRONG_DOWNLINK_PACKET_FORMAT;
 }
 
-rft_status_t rfthings_radio::parse_join_accept(unsigned char *payload, uint8_t payload_len) {
+rft_status_t rfthings_radio::parse_join_accept(unsigned char *payload, uint8_t payload_len)
+{
     unsigned char MAC_header = payload[0];
 
-    if (MAC_header == 0x20) {
+    if (MAC_header == 0x20)
+    {
         unsigned char MIC[4];
 
-        for(int i = 0; i < ((payload_len - 1) / 16); i++) {
+        for (int i = 0; i < ((payload_len - 1) / 16); i++)
+        {
             AES_Encrypt(payload + i * 16 + 1, lorawan_params.application_key);
         }
 
         Calculate_MIC(payload, payload_len - 4, lorawan_params.application_key, MIC);
 
         // Check MIC
-        for (int i = 0; i < 4; i++) {
-            if (payload[payload_len - 4 + i] != MIC[i]) {
+        for (int i = 0; i < 4; i++)
+        {
+            if (payload[payload_len - 4 + i] != MIC[i])
+            {
                 return RFT_STATUS_WRONG_MIC;
             }
         }
 
         // device address
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++)
+        {
             lorawan_params.device_address[i] = payload[10 - i];
         }
 
@@ -471,13 +589,15 @@ rft_status_t rfthings_radio::parse_join_accept(unsigned char *payload, uint8_t p
         lorawan_params.application_session_key[0] = 0x02;
 
         // app nonce
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++)
+        {
             lorawan_params.network_session_key[i + 1] = payload[i + 1];
             lorawan_params.application_session_key[i + 1] = payload[i + 1];
         }
 
         // net ID
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++)
+        {
             lorawan_params.network_session_key[i + 4] = payload[i + 4];
             lorawan_params.application_session_key[i + 4] = payload[i + 4];
         }

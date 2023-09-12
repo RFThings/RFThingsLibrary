@@ -14,6 +14,9 @@ const char* rft_status_to_str(rft_status_t status) {
 		case RFT_STATUS_WRONG_MIC:
 			return "Wrong MIC";
 			break;
+		case RFT_STATUS_WRONG_DOWNLINK_PACKET_FORMAT:
+			return "Unrecognized downlink packet format";
+			break;
 		case RFT_STATUS_TX_TIMEOUT:
 			return "TX TIMEOUT";
 			break;
@@ -42,32 +45,4 @@ const char* rft_status_to_str(rft_status_t status) {
 			return "Unknown/Invalid Status";
 			break;
 	}
-}
-
-void worship(void) {
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@@@@@@@@@@@@@,@@..@@,@@@@@@@@@@@@@@");
-	Serial.println(" @@)))@@@@@@@@@,@@..@@,@@@@@@@@@(((@@");
-	Serial.println(" @@)))@@@@@@@@@,@@..@@,@@@@@@@@@(((@@");
-	Serial.println(" @@)))@@@@@@@@@,@@..@@,@@@@@@@@@(((@@");
-	Serial.println(" @@)))@@@@@@@@@,@@..@@,@@@@@@@@@(((@@");
-	Serial.println(" @@)))@@@@@@@@@,@@..@@,@@@@@@@@@(((@@");
-	Serial.println(" @@)))@@@@@@@@@,@@..@@,@@@@@@@@@(((@@");
-	Serial.println(" @@)))@@@@@@@@@,@@..@@,@@@@@@@@@(((@@");
-	Serial.println(" @@@@@@........................@@@@@@");
-	Serial.println(" @..................................@");
-	Serial.println(" @@................................@@");
-	Serial.println(" @@@..............................@@@");
-	Serial.println(" @@@@............................@@@@");
-	Serial.println(" @@@@@@........................@@@@@@");
-	Serial.println(" @@@@@@@@....................@@@@@@@@");
-	Serial.println(" @@@@@@@@@..................@@@@@@@@@");
-	Serial.println(" @@@@@@@@@..................@@@@@@@@@");
-	Serial.println(" @@@@@@@,,,,,@@@@@@@@@@@@,,,,,@@@@@@@");
 }

@@ -95,7 +95,7 @@ sx126x_hal_status_t sx126x_hal_wakeup( const void* context ) {
 #endif
     digitalWrite(sx126x_hal->nss, LOW);
 
-    SPI.transfer(SX126X_NOP, 1);
+    SPI.transfer(SX126X_NOP);
 
 	digitalWrite(sx126x_hal->nss, HIGH);
 #ifdef SPI_HAS_TRANSACTION

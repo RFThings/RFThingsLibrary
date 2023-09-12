@@ -26,6 +26,10 @@
 #include <Arduino.h>
 #include "stdint.h"
 
+#ifndef voidFuncPtr
+typedef void (*voidFuncPtr)(void);
+#endif
+
 // Region
 typedef enum {
 	RFT_REGION_EU863_870,
@@ -233,6 +237,10 @@ typedef struct {
 	uint8_t tx_port;
 	uint8_t rx_port;
 	uint8_t rx_length;
+	uint8_t rx_window;
+
+	uint8_t rx_fopts_len;
+	uint8_t rx_fopts[15];
 } rft_lorawan_params_t;
 
 // RFThings status code
@@ -241,6 +249,7 @@ typedef enum {
 	RFT_STATUS_TX_DONE,
 	RFT_STATUS_RX_DONE,
 	RFT_STATUS_WRONG_MIC,
+	RFT_STATUS_WRONG_DOWNLINK_PACKET_FORMAT,
 	RFT_STATUS_TX_TIMEOUT,
 	RFT_STATUS_RX_TIMEOUT,
 	RFT_STATUS_JOIN_ACCEPTED,
@@ -254,6 +263,5 @@ typedef enum {
 } rft_status_t;
 
 const char* rft_status_to_str(rft_status_t status);
-void worship(void);
 
 #endif

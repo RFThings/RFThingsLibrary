@@ -81,9 +81,9 @@ rft_status_t rfthings_lr11xx::init(rft_region_t region)
 	lr11xx_system_rfswitch_cfg_t rf_switch_setup;
 	rf_switch_setup.enable = LR11XX_SYSTEM_RFSW0_HIGH | LR11XX_SYSTEM_RFSW1_HIGH | LR11XX_SYSTEM_RFSW2_HIGH;
 	rf_switch_setup.standby = 0;
-	rf_switch_setup.rx = LR11XX_SYSTEM_RFSW0_HIGH;
-	rf_switch_setup.tx = LR11XX_SYSTEM_RFSW1_HIGH;
-	rf_switch_setup.tx_hp = LR11XX_SYSTEM_RFSW1_HIGH;
+	rf_switch_setup.rx = LR11XX_SYSTEM_RFSW0_HIGH;														// (J2)
+	rf_switch_setup.tx = LR11XX_SYSTEM_RFSW1_HIGH | LR11XX_SYSTEM_RFSW0_HIGH; // (J3)
+	rf_switch_setup.tx_hp = LR11XX_SYSTEM_RFSW1_HIGH;													// (J1)
 	rf_switch_setup.tx_hf = 0x00;
 	// rf_switch_setup.gnss = LR11XX_SYSTEM_RFSW2_HIGH | LR11XX_SYSTEM_RFSW3_HIGH;
 	// rf_switch_setup.wifi 	= LR11XX_SYSTEM_RFSW3_HIGH;
@@ -210,7 +210,7 @@ rft_status_t rfthings_lr11xx::receive_lora(byte *payload, uint32_t payload_len, 
 	return RFT_STATUS_OK;
 }
 
-rft_status_t rfthings_lr11xx::send_uplink(byte *payload, uint32_t payload_len, void (*tx_func)(), void (*rx_func)())
+rft_status_t rfthings_lr11xx::send_uplink(byte *payload, uint8_t &payload_len, void (*tx_func)(), void (*rx_func)())
 {
 	// buld LoRaWAN packet
 	unsigned char lorawan_packet[9 + 255 + 4];
@@ -226,7 +226,9 @@ rft_status_t rfthings_lr11xx::send_uplink(byte *payload, uint32_t payload_len, v
 	lorawan_params.framecounter_uplink++;
 
 	// receive downlink
-	bool receive_downlink = false;
+	lorawan_params.rx_window = 0;
+	lorawan_params.rx_fopts_len = 0;
+	memset(lorawan_params.rx_fopts, 0, 15);
 
 	uint32_t irq_status;
 	lr11xx_system_stat1_t stat1;
@@ -268,10 +270,10 @@ rft_status_t rfthings_lr11xx::send_uplink(byte *payload, uint32_t payload_len, v
 
 	if (irq_status & LR11XX_SYSTEM_IRQ_RX_DONE)
 	{
-		receive_downlink = true;
+		lorawan_params.rx_window = 1;
 	}
 
-	if (!receive_downlink)
+	if (lorawan_params.rx_window == 0)
 	{
 		// RX2 window
 		lr11xx_radio_mod_params_lora_t lora_mod_params;
@@ -304,16 +306,18 @@ rft_status_t rfthings_lr11xx::send_uplink(byte *payload, uint32_t payload_len, v
 
 		if (irq_status & LR11XX_SYSTEM_IRQ_RX_DONE)
 		{
-			receive_downlink = true;
+			lorawan_params.rx_window = 2;
 		}
 	}
 
 	// parse downlink
-	if (!receive_downlink)
+	if ((lorawan_params.rx_window != 1) & (lorawan_params.rx_window != 2)) // If no downlink
 	{
 		// sleep();
-		lorawan_params.rx_length = 0;
-		return RFT_STATUS_RX_TIMEOUT;
+		payload_len = 0;
+		lorawan_params.rx_length = payload_len;
+		lorawan_params.rx_port = 0;
+		return RFT_STATUS_TX_DONE;
 	}
 
 	lr11xx_radio_pkt_status_lora_t pkt_status;
@@ -398,7 +402,9 @@ rft_status_t rfthings_lr11xx::send_join_request(void (*tx_func)(), void (*rx_fun
 	lorawan_params.framecounter_uplink++;
 
 	// receive downlink
-	bool receive_downlink = false;
+	lorawan_params.rx_window = 0;
+	lorawan_params.rx_fopts_len = 0;
+	memset(lorawan_params.rx_fopts, 0, 15);
 
 	// RX1 window
 	lora_pkt_params.preamble_len_in_symb = 32;
@@ -417,7 +423,6 @@ rft_status_t rfthings_lr11xx::send_join_request(void (*tx_func)(), void (*rx_fun
 	while (1)
 	{
 		lr11xx_system_get_status(&lr11xx_hal, &stat1, &stat2, &irq_status);
-		Serial.print("");
 		if (irq_status & LR11XX_SYSTEM_IRQ_RX_DONE)
 		{
 			break;
@@ -432,10 +437,10 @@ rft_status_t rfthings_lr11xx::send_join_request(void (*tx_func)(), void (*rx_fun
 
 	if (irq_status & LR11XX_SYSTEM_IRQ_RX_DONE)
 	{
-		receive_downlink = true;
+		lorawan_params.rx_window = 1;
 	}
 
-	if (!receive_downlink)
+	if (lorawan_params.rx_window == 0)
 	{
 		// RX2 window
 		lora_mod_params.sf = map_spreading_factor(lorawan_params.rx2_spreading_factor);
@@ -467,12 +472,12 @@ rft_status_t rfthings_lr11xx::send_join_request(void (*tx_func)(), void (*rx_fun
 
 		if (irq_status & LR11XX_SYSTEM_IRQ_RX_DONE)
 		{
-			receive_downlink = true;
+			lorawan_params.rx_window = 2;
 		}
 	}
 
 	// parse downlink
-	if (!receive_downlink)
+	if ((lorawan_params.rx_window != 1) & (lorawan_params.rx_window != 2))
 	{
 		sleep();
 		lorawan_params.rx_length = 0;

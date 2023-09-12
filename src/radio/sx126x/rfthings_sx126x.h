@@ -25,8 +25,6 @@
 #include "sx126x_driver/sx126x_hal.h"
 #include "sx126x_driver/sx126x_regs.h"
 
-#include <RTC.h>
-
 extern volatile bool detect_preamble;
 
 class rfthings_sx126x : public rfthings_radio {
@@ -38,7 +36,7 @@ class rfthings_sx126x : public rfthings_radio {
 
         rft_status_t send_lora(byte *payload, uint32_t payload_len, uint32_t timeout, void (*tx_func)());
         rft_status_t receive_lora(byte *payload, uint32_t payload_len, uint32_t timeout, void(*rx_func)());
-        rft_status_t send_uplink(byte *payload, uint32_t payload_len, void (*tx_func)(), void(*rx_func)(), bool send_to_relay = false);
+        rft_status_t send_uplink(byte *payload, uint8_t& payload_len, void (*tx_func)(), void(*rx_func)(), bool send_to_relay = false);
         rft_status_t send_join_request(void (*tx_func)(), void(*rx_func)());
         rft_status_t check_hardware(void);
 

@@ -109,6 +109,10 @@ class rfthings_radio {
         uint32_t get_framecounter_downlink(void);
         uint8_t get_rx_port(void);
         uint8_t get_rx_length(void);
+        uint8_t get_rx_windows(void);
+        uint8_t* get_rx_fopts(void);
+        uint8_t get_rx_fopts_len(void);
+
     protected:
         rft_lora_params_t lora_params;
         rft_lorawan_params_t lorawan_params;
@@ -117,6 +121,6 @@ class rfthings_radio {
         uint8_t build_uplink_packet(unsigned char *payload, uint8_t payload_len, unsigned char *lorawan_packet);
         uint8_t build_join_request(unsigned char *lorawan_packet);
 
-        rft_status_t parse_downlink(unsigned char *payload, uint8_t payload_len);
+        rft_status_t parse_downlink(unsigned char *payload, uint8_t& payload_len);
         rft_status_t parse_join_accept(unsigned char *payload, uint8_t payload_len);
 };

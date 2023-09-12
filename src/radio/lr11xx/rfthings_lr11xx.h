@@ -43,7 +43,7 @@ public:
 
     rft_status_t send_lora(byte *payload, uint32_t payload_len, void (*tx_func)());
     rft_status_t receive_lora(byte *payload, uint32_t payload_len, void (*rx_func)());
-    rft_status_t send_uplink(byte *payload, uint32_t payload_len, void (*tx_func)(), void (*rx_func)());
+    rft_status_t send_uplink(byte *payload, uint8_t& payload_len, void (*tx_func)(), void (*rx_func)());
     rft_status_t send_join_request(void (*tx_func)(), void (*rx_func)());
     rft_status_t check_hardware(void);
 

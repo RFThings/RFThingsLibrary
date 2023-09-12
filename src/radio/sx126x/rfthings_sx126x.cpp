@@ -22,10 +22,6 @@
 
 #include "rfthings_sx126X.h"
 
-#if !defined(voidFuncPtr)
-typedef void (*voidFuncPtr)(void);
-#endif
-
 volatile bool detect_preamble;
 
 rfthings_sx126x::rfthings_sx126x(byte nss_pin, byte rst_pin, byte busy_pin, byte dio1_pin, byte antenna_switch_pin)
@@ -418,7 +414,7 @@ rft_status_t rfthings_sx126x::relay(rft_lora_params_t *relay_lora_params, byte *
 	return return_value;
 }
 
-rft_status_t rfthings_sx126x::send_uplink(byte *payload, uint32_t payload_len, void (*tx_func)(), void(*rx_func)(), bool send_to_relay)
+rft_status_t rfthings_sx126x::send_uplink(byte *payload, uint8_t& payload_len, void (*tx_func)(), void(*rx_func)(), bool send_to_relay)
 {
 	// buld LoRaWAN packet
 	unsigned char lorawan_packet[9 + 255 + 4];
